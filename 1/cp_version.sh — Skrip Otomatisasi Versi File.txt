@@ -1,0 +1,209 @@
+Baik 🙂, saya akan ubah semua penjelasan dan skrip di atas menjadi format **artikel wiki** yang lebih terstruktur, jelas, dan mudah dibaca. Hasilnya akan seperti dokumentasi resmi.
+
+---
+
+# **cp\_version.sh — Skrip Otomatisasi Versi File**
+
+`cp_version.sh` adalah skrip **Bash** yang berfungsi untuk membuat salinan file dengan **penomoran versi otomatis**.
+Skrip ini sangat berguna saat mengembangkan proyek karena mempermudah pelacakan versi file tanpa harus mengganti nama secara manual.
+
+---
+
+## **Fitur Utama**
+
+* ✅ Membuat salinan file dengan format versi otomatis.
+* ✅ Penomoran versi mengikuti pola **vX.Y**.
+* ✅ Folder histori otomatis dibuat jika belum ada.
+* ✅ Bisa digunakan untuk **berbagai file** sekaligus.
+* ✅ Mendukung file dengan ekstensi apa pun, misalnya `.sh`, `.py`, `.txt`, dll.
+
+---
+
+## **Struktur Nama File**
+
+Setiap kali skrip dijalankan, hasilnya berupa file baru dengan pola berikut:
+
+```
+nama-file-vX.Y.ext
+```
+
+**Contoh:**
+
+```
+coba-v1.1.sh
+coba-v1.2.sh
+tes-v1.1.sh
+```
+
+---
+
+## **Kode Sumber Skrip**
+
+**Nama file:** `cp_version.sh`
+
+```bash
+#!/bin/bash
+
+# ================================
+# Script : cp_version.sh
+# Fungsi : Membuat salinan file dengan versi otomatis
+# Format : nama-file-vX.Y.ext
+# Cara pakai:
+#   ./cp_version.sh <nama_file>
+# Contoh:
+#   ./cp_version.sh coba.sh
+# ================================
+
+# Cek apakah pengguna memberikan nama file sebagai argumen
+if [[ -z "$1" ]]; then
+    echo "❌ Error: Harap masukkan nama file sumber!"
+    echo "Contoh: $0 coba.sh"
+    exit 1
+fi
+
+# Nama file sumber
+SOURCE_FILE="$1"
+
+# Cek apakah file sumber ada
+if [[ ! -f "$SOURCE_FILE" ]]; then
+    echo "❌ Error: File '$SOURCE_FILE' tidak ditemukan!"
+    exit 1
+fi
+
+# Dapatkan direktori skrip
+LIVE_DIR=$(dirname "$0")
+
+# Direktori tujuan
+DEST_DIR="$LIVE_DIR/histori"
+
+# Buat direktori tujuan jika belum ada
+mkdir -p "$DEST_DIR"
+
+# Ambil nama dasar dan ekstensi file
+BASE_NAME=$(echo "$SOURCE_FILE" | sed -E 's/(.*)(\.[^.]+)/\1/')
+EXTENSION=$(echo "$SOURCE_FILE" | sed -E 's/.*(\.[^.]+)/\1/')
+
+# Cari versi terakhir yang ada di folder histori
+LAST_VERSION=$(ls "$DEST_DIR" 2>/dev/null | grep -E "^${BASE_NAME}-v([0-9]+\.[0-9]+)${EXTENSION}$" \
+    | sed -E "s/.*-v([0-9]+\.[0-9]+)${EXTENSION}/\1/" \
+    | sort -V | tail -n 1)
+
+# Tentukan versi baru
+if [[ -z "$LAST_VERSION" ]]; then
+    NEW_VERSION="v1.1"
+else
+    MAJOR=$(echo "$LAST_VERSION" | cut -d'.' -f1)
+    MINOR=$(echo "$LAST_VERSION" | cut -d'.' -f2)
+    NEW_MINOR=$((MINOR + 1))
+    NEW_VERSION="v$MAJOR.$NEW_MINOR"
+fi
+
+echo "Versi baru: $NEW_VERSION"
+
+# Buat nama file baru dengan format: nama-file-vX.Y.ext
+NEW_FILE_NAME="${BASE_NAME}-${NEW_VERSION}${EXTENSION}"
+
+# Salin file ke folder histori
+cp "$SOURCE_FILE" "$DEST_DIR/$NEW_FILE_NAME"
+
+echo "✅ File berhasil disalin ke: $DEST_DIR/$NEW_FILE_NAME"
+```
+
+---
+
+## **Cara Penggunaan**
+
+### **1. Simpan Skrip**
+
+Simpan kode di atas sebagai file bernama **`cp_version.sh`**.
+
+---
+
+### **2. Beri Izin Eksekusi**
+
+Jalankan perintah berikut untuk membuat skrip dapat dieksekusi:
+
+```bash
+chmod +x cp_version.sh
+```
+
+---
+
+### **3. Jalankan Skrip**
+
+Gunakan perintah berikut dengan menyertakan nama file sumber:
+
+```bash
+./cp_version.sh coba.sh
+```
+
+---
+
+### **4. Hasilnya**
+
+Setelah menjalankan skrip beberapa kali, isi folder `histori` akan menjadi seperti ini:
+
+```
+histori/
+├── coba-v1.1.sh
+├── coba-v1.2.sh
+├── coba-v1.3.sh
+```
+
+---
+
+### **5. Mendukung Banyak File**
+
+Skrip ini tidak terbatas pada satu file saja.
+Misalnya, jika Anda memiliki file `tes.sh`, jalankan:
+
+```bash
+./cp_version.sh tes.sh
+```
+
+Hasilnya:
+
+```
+histori/
+├── coba-v1.3.sh
+├── tes-v1.1.sh
+├── tes-v1.2.sh
+```
+
+---
+
+## **Opsi Peningkatan**
+
+Jika ingin membuat sistem histori **per file** agar lebih rapi, struktur foldernya bisa diubah menjadi seperti berikut:
+
+```
+histori/
+├── coba/
+│   ├── coba-v1.1.sh
+│   ├── coba-v1.2.sh
+├── tes/
+│   ├── tes-v1.1.sh
+│   ├── tes-v1.2.sh
+```
+
+Hal ini bisa diimplementasikan dengan sedikit modifikasi pada skrip, misalnya dengan membuat folder baru berdasarkan nama file sumber.
+
+---
+
+## **Lisensi**
+
+Proyek ini bersifat **open-source** dan bebas digunakan untuk kebutuhan pribadi maupun proyek profesional.
+
+---
+
+## **Lihat Juga**
+
+* [Dokumentasi Bash](https://www.gnu.org/software/bash/)
+* [Perintah `sed`](https://www.gnu.org/software/sed/manual/sed.html)
+* [Perintah `grep`](https://www.gnu.org/software/grep/manual/grep.html)
+* [Perintah `sort`](https://man7.org/linux/man-pages/man1/sort.1.html)
+
+---
+
+Apakah kamu mau saya **lanjutkan** membuatkan versi skripnya yang sudah otomatis menaruh hasil ke **folder histori per file**?
+Kalau iya, nanti wiki-nya juga saya perbarui agar lebih lengkap. Mau?
